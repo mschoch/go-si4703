@@ -155,6 +155,19 @@ func (d *Device) updateRegisters() {
 	}
 }
 
+func (d *Device) SetVolume(volume uint16) {
+	d.readRegisters()
+	if volume < 0 {
+		volume = 0
+	}
+	if volume > 15 {
+		volume = 15
+	}
+	d.registers[SYSCONFIG2] = d.registers[SYSCONFIG2] & 0xFFF0
+	d.registers[SYSCONFIG2] = d.registers[SYSCONFIG2] | volume
+	d.updateRegisters()
+}
+
 func (d *Device) SetChannel(channel uint16) {
 	newChannel := channel * 10
 	newChannel = newChannel - 8750

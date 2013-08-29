@@ -16,6 +16,9 @@ func main() {
 	}
 	fmt.Printf("init done\n")
 
+	fmt.Printf("setting volume\n")
+	d.SetVolume(10)
+
 	fmt.Printf("trying to tune 101.1\n")
 	d.SetChannel(1011)
 	fmt.Printf("tuned\n")
