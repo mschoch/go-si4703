@@ -87,6 +87,7 @@ func (d *Device) InitCustomAddr(addr, busNum byte) (err error) {
 
 	d.readRegisters()
 
+	d.updateRegisters()
 	return
 }
 
@@ -114,10 +115,13 @@ func (d *Device) readRegisters() {
 		}
 	}
 
-
 	log.Printf("self: %v", d)
 }
 
 func (d *Device) updateRegisters() {
-
+	p := new(bytes.Buffer)
+	for x := 0x02; x < 0x08; x++ {
+		binary.Write(p, binary.BigEndian, d.registers[x])
+	}
+	log.Printf("output bytes is %v", p.Bytes())
 }
