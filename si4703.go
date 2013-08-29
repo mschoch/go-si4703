@@ -106,7 +106,7 @@ func (d *Device) readRegisters() {
 		p := bytes.NewBuffer(data[counter : counter+2])
 		err = binary.Read(p, binary.BigEndian, &d.registers[x])
 		if err != nil {
-			log.Printf("error: %v", err)
+			log.Printf("error reading: %v", err)
 			return
 		}
 		counter = counter + 2
@@ -123,5 +123,12 @@ func (d *Device) updateRegisters() {
 	for x := 0x02; x < 0x08; x++ {
 		binary.Write(p, binary.BigEndian, d.registers[x])
 	}
-	log.Printf("output bytes is %v", p.Bytes())
+
+	bytes := p.Bytes()
+	log.Printf("output bytes is %v", bytes)
+
+	err := d.bus.WriteByteBlock(d.addr, bytes[0], bytes[1:])
+	if err != nil {
+		log.Printf("error writing: %v")
+	}
 }
