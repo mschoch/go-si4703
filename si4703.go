@@ -76,8 +76,8 @@ type Device struct {
 
 func (d *Device) String() string {
 	rv := ""
-	fmt.Sprintf("Part Number: %x\n", d.registers[DEVICEID]>>12)
-	fmt.Sprintf("Manufacturer: %x\n", d.registers[DEVICEID]&0x8F)
+	fmt.Sprintf(rv, "Part Number: %x\n", d.registers[DEVICEID]>>12)
+	fmt.Sprintf(rv, "Manufacturer: %x\n", d.registers[DEVICEID]&0x8F)
 	return rv
 }
 
