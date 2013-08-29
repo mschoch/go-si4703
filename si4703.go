@@ -10,6 +10,8 @@
 package si4703
 
 import (
+	"bytes"
+	"encoding/binary"
 	"log"
 
 	"bitbucket.org/gmcbay/i2c"
@@ -25,6 +27,10 @@ const (
 	CHANNEL
 	SYSCONFIG1
 	SYSCONFIG2
+	UNUSED6
+	UNUSED7
+	UNUSED8
+	UNUSED9
 	STATUSRSSI
 	READCHAN
 	RDSA
@@ -90,7 +96,25 @@ func (d *Device) readRegisters() {
 		return
 	}
 
+	counter := 0
+	for x := 0x0A; ; x++ {
+		if x == 0x10 {
+			x = 0
+		}
+		p := bytes.NewBuffer(data[counter : counter+2])
+		err = binary.Read(p, binary.BigEndian, d.registers[x])
+		if err != nil {
+			return
+		}
+		counter = counter + 2
+		if x == 0x09 {
+			break
+		}
+	}
+
 	log.Printf("read bytes: %v", data)
+
+	log.Printf("self: %v", d)
 }
 
 func (d *Device) updateRegisters() {
