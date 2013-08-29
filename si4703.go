@@ -12,6 +12,7 @@ package si4703
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 	"log"
 	"time"
 
@@ -71,6 +72,13 @@ type Device struct {
 	busNum    byte
 	addr      byte
 	registers []uint16
+}
+
+func (d *Device) String() string {
+	rv := ""
+	fmt.Sprintf("Part Number: %x\n", d.registers[DEVICEID]>>12)
+	fmt.Sprintf("Manufacturer: %x\n", d.registers[DEVICEID]&0x8F)
+	return rv
 }
 
 func (d *Device) Init(busNum byte) (err error) {
