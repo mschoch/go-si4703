@@ -13,6 +13,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"log"
+	"time"
 
 	"bitbucket.org/gmcbay/i2c"
 )
@@ -85,9 +86,30 @@ func (d *Device) InitCustomAddr(addr, busNum byte) (err error) {
 	d.addr = addr
 	d.registers = make([]uint16, 16)
 
+	// read
 	d.readRegisters()
-
+	// enable the oscillator
+	d.registers[UNUSED7] = 0x8100
+	// update
 	d.updateRegisters()
+
+	// wait for clock to settle
+	time.Sleep(500 * time.Millisecond)
+
+	// read
+	d.readRegisters()
+	// enable the IC
+	d.registers[POWERCFG] = 0x4001
+	// disable mute
+	d.registers[POWERCFG] = d.registers[POWERCFG] | (1 << SMUTE) | (1 << DMUTE)
+	// enable the RDS
+	d.registers[SYSCONFIG1] = d.registers[SYSCONFIG1] | (1 << RDS)
+	// update
+	d.updateRegisters()
+
+	// wait max powerup time
+	time.Sleep(110 * time.Millisecond)
+
 	return
 }
 
@@ -130,5 +152,27 @@ func (d *Device) updateRegisters() {
 	err := d.bus.WriteByteBlock(d.addr, bytes[0], bytes[1:])
 	if err != nil {
 		log.Printf("error writing: %v")
+	}
+}
+
+func (d *Device) SetChannel(channel uint16) {
+	newChannel := channel * 10
+	newChannel = newChannel - 8750
+	newChannel = newChannel / 10
+
+	d.readRegisters()
+	d.registers[CHANNEL] = d.registers[CHANNEL] & 0xFE00
+	d.registers[CHANNEL] = d.registers[CHANNEL] | newChannel
+	d.registers[CHANNEL] = d.registers[CHANNEL] | (1 << TUNE)
+
+	log.Printf("Attempting to tune")
+	d.updateRegisters()
+
+	for {
+		d.readRegisters()
+		if d.registers[STATUSRSSI]&(1<<STC) != 0 {
+			log.Printf("Tuning Complete")
+			break
+		}
 	}
 }

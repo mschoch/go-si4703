@@ -14,4 +14,9 @@ func main() {
 		fmt.Printf("error: %v\n", err)
 		return
 	}
+	fmt.Printf("init done\n")
+
+	fmt.Printf("trying to tune 101.1\n")
+	d.SetChannel(1011)
+	fmt.Printf("tuned\n")
 }
