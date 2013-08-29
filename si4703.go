@@ -10,6 +10,8 @@
 package si4703
 
 import (
+	"log"
+
 	"bitbucket.org/gmcbay/i2c"
 )
 
@@ -82,7 +84,8 @@ func (d *Device) InitCustomAddr(addr, busNum byte) (err error) {
 }
 
 func (d *Device) readRegisters() {
-
+	var data []byte
+	var err error
 	if data, err = d.bus.ReadByteBlock(d.addr, 0, 32); err != nil {
 		return
 	}

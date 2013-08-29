@@ -1,7 +1,9 @@
 package main
 
 import (
-	"github.com/mschoch/si4703"
+	"fmt"
+
+	"github.com/mschoch/go-si4703"
 )
 
 func main() {
