@@ -1,0 +1,6 @@
+#*
+*.sublime-*
+*~
+.#*
+.DS_Store
+/tuner/tuner
