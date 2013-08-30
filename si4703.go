@@ -74,13 +74,6 @@ type Device struct {
 	registers []uint16
 }
 
-func (d *Device) String() string {
-	rv := "Si4703\n"
-	rv = rv + fmt.Sprintf("Part Number: %x\n", d.registers[DEVICEID]>>12)
-	rv = rv + fmt.Sprintf("Manufacturer: %x\n", d.registers[DEVICEID]&0xFFF)
-	return rv
-}
-
 func (d *Device) Init(busNum byte) (err error) {
 	return d.InitCustomAddr(I2C_ADDR, busNum)
 }
@@ -195,5 +188,93 @@ func (d *Device) SetChannel(channel uint16) {
 			log.Printf("Tuning Complete")
 			break
 		}
+	}
+}
+
+func (d *Device) String() string {
+	rv := "Si4703\n"
+	rv = rv + d.printDeviceID(d.registers[DEVICEID])
+	rv = rv + d.printChipID(d.registers[CHIPID])
+	rv = rv + d.printPowerCfg(d.registers[POWERCFG])
+	return rv
+}
+
+func (d *Device) printDeviceID(deviceid uint16) string {
+	rv := ""
+	rv = rv + fmt.Sprintf("Part Number: %s\n", d.partNumber(byte(deviceid>>12)))
+	rv = rv + fmt.Sprintf("Manufacturer: 0x%x\n", deviceid&0xFFF)
+	return rv
+}
+
+func (d *Device) partNumber(num byte) string {
+	switch num {
+	case 0x01:
+		return "Si4702/03"
+	default:
+		return "Unknown"
+	}
+}
+
+func (d *Device) printChipID(chipid uint16) string {
+	rv := ""
+	rv = rv + fmt.Sprintf("Chip Version: %s\n", d.chipVersion(byte(chipid>>10)))
+	rv = rv + fmt.Sprintf("Device: %s\n", d.device(byte((chipid&0x1FF)>>6)))
+	rv = rv + fmt.Sprintf("Firmware Version %s\n", d.firmwareVersion(byte(chipid&0x1F)))
+	return rv
+}
+
+func (d *Device) chipVersion(rev byte) string {
+	switch rev {
+	case 0x04:
+		return "Rev C"
+	default:
+		return "Unknown"
+	}
+}
+
+func (d *Device) device(dev byte) string {
+	switch dev {
+	case 0x0:
+		return "Si4702 (off)"
+	case 0x1:
+		return "Si4702 (on)"
+	case 0x8:
+		return "Si4703 (off)"
+	case 0x9:
+		return "Si4703 (on)"
+	default:
+		return "Unknown"
+	}
+}
+
+func (d *Device) firmwareVersion(rev byte) string {
+	switch rev {
+	case 0x0:
+		return "Off"
+	default:
+		return fmt.Sprintf("%v", rev)
+	}
+}
+
+func (d *Device) printPowerCfg(powercfg uint16) string {
+	rv := ""
+	rv = rv + fmt.Sprintf("Soft Mute: %s\n", d.mute(byte(powercfg>>15)))
+	rv = rv + fmt.Sprintf("Mute: %s\n", d.mute(byte(powercfg&0x7fff)>>14))
+	rv = rv + fmt.Sprintf("Stereo/Mono: %s\n", "")
+	rv = rv + fmt.Sprintf("RDS Mode: %s\n", "", "")
+	rv = rv + fmt.Sprintf("Seek Mode: %s\n", "")
+	rv = rv + fmt.Sprintf("Seek Direction: %s\n", "")
+	rv = rv + fmt.Sprintf("Seek: %s\n", "")
+	rv = rv + fmt.Sprintf("Power-Up Disable: %s\n", "")
+	rv = rv + fmt.Sprintf("Power-Up Enable: %s\n", "")
+	return rv
+}
+
+func (d *Device) mute(mute byte) string {
+	switch mute {
+	case 0x0:
+		return "Enabled"
+	default:
+		return "Disabled"
 	}
 }
