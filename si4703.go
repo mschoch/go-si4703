@@ -196,6 +196,7 @@ func (d *Device) String() string {
 	rv = rv + d.printDeviceID(d.registers[DEVICEID])
 	rv = rv + d.printChipID(d.registers[CHIPID])
 	rv = rv + d.printPowerCfg(d.registers[POWERCFG])
+	rv = rv + d.printTune(d.registers[TUNE])
 	rv = rv + "--------------------------------------------------------------------------------\n\n"
 	return rv
 }
@@ -266,7 +267,7 @@ func (d *Device) printPowerCfg(powercfg uint16) string {
 	rv = rv + fmt.Sprintf("RDS Mode: %s\n", d.printRDSMode(byte(powercfg&0xfff)>>11))
 	rv = rv + fmt.Sprintf("Seek Mode: %s\n", d.printSeekMode(byte(powercfg&0x7ff)>>10))
 	rv = rv + fmt.Sprintf("Seek Direction: %s\n", d.printSeekDirection(byte(powercfg&0x3ff)>>9))
-	rv = rv + fmt.Sprintf("Seek: %s\n", d.printSeek(byte(powercfg&0x1ff)>>8))
+	rv = rv + fmt.Sprintf("Seek: %s\n", d.printEnabled(byte(powercfg&0x1ff)>>8))
 	rv = rv + fmt.Sprintf("Power-Up Disable: %s\n", d.printPower(byte(powercfg&0x3f)>>6))
 	rv = rv + fmt.Sprintf("Power-Up Enable: %s\n", d.printPower(byte(powercfg&0x1)))
 	return rv
@@ -317,7 +318,7 @@ func (d *Device) printSeekDirection(seek byte) string {
 	}
 }
 
-func (d *Device) printSeek(seek byte) string {
+func (d *Device) printEnabled(seek byte) string {
 	switch seek {
 	case 0x0:
 		return "Disabled"
@@ -332,5 +333,28 @@ func (d *Device) printPower(power byte) string {
 		return "Default"
 	default:
 		return "On"
+	}
+}
+
+func (d *Device) printTune(tune uint16) string {
+	rv := ""
+	rv = rv + fmt.Sprintf("Tune: %s\n", d.printEnabled(byte(tune>>15)))
+	rv = rv + fmt.Sprintf("Channel: %s\n", d.printChannel(tune&0x1FF))
+
+	return rv
+}
+
+func (d *Device) printChannel(channel uint16) string {
+	band := 0      // FIXME use actual band
+	spacing := 200 // FIXME use actual spacing
+	switch band {
+	case 0:
+		freq := (float64(spacing) * float64(channel)) + 87.5
+		return fmt.Sprintf("%fMHz", freq)
+	case 1:
+		freq := (float64(spacing) * float64(channel)) + 76.0
+		return fmt.Sprintf("%fMHz", freq)
+	default:
+		return "Unknown"
 	}
 }
