@@ -24,4 +24,5 @@ func main() {
 	fmt.Printf("trying to tune 101.1\n")
 	d.SetChannel(1011)
 	fmt.Printf("tuned\n")
+	fmt.Printf("%v\n", d)
 }
