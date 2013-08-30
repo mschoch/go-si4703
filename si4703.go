@@ -182,10 +182,24 @@ func (d *Device) SetChannel(channel uint16) {
 	log.Printf("Attempting to tune")
 	d.updateRegisters()
 
+	// wait for tuning to complete
 	for {
 		d.readRegisters()
 		if d.registers[STATUSRSSI]&(1<<STC) != 0 {
 			log.Printf("Tuning Complete")
+			break
+		}
+	}
+
+	// clear the tune bit
+	d.registers[CHANNEL] = d.registers[CHANNEL] &^ (1 << TUNE)
+	d.updateRegisters()
+
+	// now wait for for STC to be cleared
+	for {
+		d.readRegisters()
+		if d.registers[STATUSRSSI]&(1<<STC) == 0 {
+			log.Printf("STC Cleared")
 			break
 		}
 	}
