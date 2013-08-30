@@ -192,21 +192,22 @@ func (d *Device) SetChannel(channel uint16) {
 }
 
 func (d *Device) String() string {
-	rv := "Si4703\n"
+	rv := "--------------------------------------------------------------------------------\n"
 	rv = rv + d.printDeviceID(d.registers[DEVICEID])
 	rv = rv + d.printChipID(d.registers[CHIPID])
 	rv = rv + d.printPowerCfg(d.registers[POWERCFG])
+	rv = "--------------------------------------------------------------------------------\n\n"
 	return rv
 }
 
 func (d *Device) printDeviceID(deviceid uint16) string {
 	rv := ""
-	rv = rv + fmt.Sprintf("Part Number: %s\n", d.partNumber(byte(deviceid>>12)))
+	rv = rv + fmt.Sprintf("Part Number: %s\n", d.printPartNumber(byte(deviceid>>12)))
 	rv = rv + fmt.Sprintf("Manufacturer: 0x%x\n", deviceid&0xFFF)
 	return rv
 }
 
-func (d *Device) partNumber(num byte) string {
+func (d *Device) printPartNumber(num byte) string {
 	switch num {
 	case 0x01:
 		return "Si4702/03"
@@ -217,13 +218,14 @@ func (d *Device) partNumber(num byte) string {
 
 func (d *Device) printChipID(chipid uint16) string {
 	rv := ""
-	rv = rv + fmt.Sprintf("Chip Version: %s\n", d.chipVersion(byte(chipid>>10)))
-	rv = rv + fmt.Sprintf("Device: %s\n", d.device(byte((chipid&0x1FF)>>6)))
-	rv = rv + fmt.Sprintf("Firmware Version %s\n", d.firmwareVersion(byte(chipid&0x1F)))
+	rv = rv + fmt.Sprintf("Chip Version: %s\n", d.printChipVersion(byte(chipid>>10)))
+	rv = rv + fmt.Sprintf("Device: %s\n", d.printDevice(byte((chipid&0x1FF)>>6)))
+	rv = rv + fmt.Sprintf("Firmware Version %s\n", d.printFirmwareVersion(byte(chipid&0x1F)))
+
 	return rv
 }
 
-func (d *Device) chipVersion(rev byte) string {
+func (d *Device) printChipVersion(rev byte) string {
 	switch rev {
 	case 0x04:
 		return "Rev C"
@@ -232,7 +234,7 @@ func (d *Device) chipVersion(rev byte) string {
 	}
 }
 
-func (d *Device) device(dev byte) string {
+func (d *Device) printDevice(dev byte) string {
 	switch dev {
 	case 0x0:
 		return "Si4702 (off)"
@@ -247,7 +249,7 @@ func (d *Device) device(dev byte) string {
 	}
 }
 
-func (d *Device) firmwareVersion(rev byte) string {
+func (d *Device) printFirmwareVersion(rev byte) string {
 	switch rev {
 	case 0x0:
 		return "Off"
@@ -258,23 +260,77 @@ func (d *Device) firmwareVersion(rev byte) string {
 
 func (d *Device) printPowerCfg(powercfg uint16) string {
 	rv := ""
-	rv = rv + fmt.Sprintf("Soft Mute: %s\n", d.mute(byte(powercfg>>15)))
-	rv = rv + fmt.Sprintf("Mute: %s\n", d.mute(byte(powercfg&0x7fff)>>14))
-	rv = rv + fmt.Sprintf("Stereo/Mono: %s\n", "")
-	rv = rv + fmt.Sprintf("RDS Mode: %s\n", "", "")
-	rv = rv + fmt.Sprintf("Seek Mode: %s\n", "")
-	rv = rv + fmt.Sprintf("Seek Direction: %s\n", "")
-	rv = rv + fmt.Sprintf("Seek: %s\n", "")
-	rv = rv + fmt.Sprintf("Power-Up Disable: %s\n", "")
-	rv = rv + fmt.Sprintf("Power-Up Enable: %s\n", "")
+	rv = rv + fmt.Sprintf("Soft Mute: %s\n", d.printMute(byte(powercfg>>15)))
+	rv = rv + fmt.Sprintf("Mute: %s\n", d.printMute(byte(powercfg&0x7fff)>>14))
+	rv = rv + fmt.Sprintf("Stereo/Mono: %s\n", d.printStereoMono(byte(powercfg&0x3fff)>>13))
+	rv = rv + fmt.Sprintf("RDS Mode: %s\n", d.printRDSMode(byte(powercfg&0xfff)>>11))
+	rv = rv + fmt.Sprintf("Seek Mode: %s\n", d.printSeekMode(byte(powercfg&0x7ff)>>10))
+	rv = rv + fmt.Sprintf("Seek Direction: %s\n", d.printSeekDirection(byte(powercfg&0x3ff)>>9))
+	rv = rv + fmt.Sprintf("Seek: %s\n", d.printSeek(byte(powercfg&0x1ff)>>8))
+	rv = rv + fmt.Sprintf("Power-Up Disable: %s\n", d.printPower(byte(powercfg&0x3f)>>6))
+	rv = rv + fmt.Sprintf("Power-Up Enable: %s\n", d.printPower(byte(powercfg&0x1)))
 	return rv
 }
 
-func (d *Device) mute(mute byte) string {
+func (d *Device) printMute(mute byte) string {
 	switch mute {
 	case 0x0:
 		return "Enabled"
 	default:
 		return "Disabled"
+	}
+}
+
+func (d *Device) printStereoMono(mono byte) string {
+	switch mono {
+	case 0x0:
+		return "Stereo"
+	default:
+		return "Mono"
+	}
+}
+
+func (d *Device) printRDSMode(rds byte) string {
+	switch rds {
+	case 0x0:
+		return "Standard"
+	default:
+		return "Verbose"
+	}
+}
+
+func (d *Device) printSeekMode(seek byte) string {
+	switch seek {
+	case 0x0:
+		return "Wrap"
+	default:
+		return "Stop"
+	}
+}
+
+func (d *Device) printSeekDirection(seek byte) string {
+	switch seek {
+	case 0x0:
+		return "Down"
+	default:
+		return "Up"
+	}
+}
+
+func (d *Device) printSeek(seek byte) string {
+	switch seek {
+	case 0x0:
+		return "Disabled"
+	default:
+		return "Enabled"
+	}
+}
+
+func (d *Device) printPower(power byte) string {
+	switch power {
+	case 0x0:
+		return "Default"
+	default:
+		return "On"
 	}
 }
