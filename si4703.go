@@ -102,9 +102,11 @@ func (d *Device) InitCustomAddr(addr, busNum byte) (err error) {
 	// enable the IC
 	d.registers[POWERCFG] = 0x4001
 	// disable mute
-	d.registers[POWERCFG] = d.registers[POWERCFG] | (1 << SMUTE) | (1 << DMUTE)
+	//d.registers[POWERCFG] = d.registers[POWERCFG] | (1 << SMUTE) | (1 << DMUTE)
 	// enable the RDS
 	d.registers[SYSCONFIG1] = d.registers[SYSCONFIG1] | (1 << RDS)
+	d.registers[SYSCONFIG2] = d.registers[SYSCONFIG2] & 0xFFF0 // clear volume
+	d.registers[SYSCONFIG2] = d.registers[SYSCONFIG2] | 0x0001 // set to lowest
 	// update
 	d.updateRegisters()
 
