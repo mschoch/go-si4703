@@ -196,7 +196,7 @@ func (d *Device) String() string {
 	rv = rv + d.printDeviceID(d.registers[DEVICEID])
 	rv = rv + d.printChipID(d.registers[CHIPID])
 	rv = rv + d.printPowerCfg(d.registers[POWERCFG])
-	rv = "--------------------------------------------------------------------------------\n\n"
+	rv = rv + "--------------------------------------------------------------------------------\n\n"
 	return rv
 }
 
