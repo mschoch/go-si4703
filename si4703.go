@@ -386,7 +386,7 @@ func (d *Device) printChannelNumber(channel uint16) string {
 	spacing := 200 // FIXME use actual spacing
 	switch band {
 	case 0:
-		freq := ((channel * 20) + 8750) / 100
+		freq := ((float64(channel) * 20) + 8750) / 100
 		return fmt.Sprintf("%fMHz", freq)
 	case 1:
 		freq := (float64(spacing) * float64(channel)) + 76.0
