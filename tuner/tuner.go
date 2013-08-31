@@ -78,16 +78,18 @@ func main() {
 			if len(command) > 1 {
 				val, err := strconv.ParseFloat(command[1], 32)
 				if err != nil {
+					fmt.Printf("Invalid frequence\n")
+				} else {
 					freqint := uint16(val * 10)
 					d.SetChannel(freqint)
 				}
 			} else {
-				fmt.Printf("specify frequency in MHz")
+				fmt.Printf("specify frequency in MHz\n")
 			}
 		case "help":
-			fmt.Printf("Valid commands are: quit, volume, mute")
+			fmt.Printf("Valid commands are: quit, volume, mute, tune\n")
 		default:
-			fmt.Printf("Unknown command: `%s`", command[0])
+			fmt.Printf("Unknown command: `%s`\n", command[0])
 		}
 
 	}
