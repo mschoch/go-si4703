@@ -81,7 +81,6 @@ func (d *Device) Init(busNum byte) (err error) {
 
 func (d *Device) InitCustomAddr(addr, busNum byte) (err error) {
 	// do some manual GPIO to initialize the device
-	log.Printf("starting manual gpio")
 	err = rpio.Open()
 	if err != nil {
 		return err
@@ -96,7 +95,6 @@ func (d *Device) InitCustomAddr(addr, busNum byte) (err error) {
 	time.Sleep(1 * time.Second)
 
 	rpio.Close()
-	log.Printf("done manual gpio")
 
 	if d.bus, err = i2c.Bus(busNum); err != nil {
 		return
@@ -160,7 +158,7 @@ func (d *Device) readRegisters() {
 		return
 	}
 
-	log.Printf("read bytes %v", data)
+	//log.Printf("read bytes %v", data)
 
 	counter := 0
 	for x := 0x0A; ; x++ {
@@ -179,7 +177,7 @@ func (d *Device) readRegisters() {
 		}
 	}
 
-	log.Printf("self: %v", d)
+	//log.Printf("self: %v", d)
 }
 
 func (d *Device) updateRegisters() {
@@ -189,7 +187,7 @@ func (d *Device) updateRegisters() {
 	}
 
 	bytes := p.Bytes()
-	log.Printf("output bytes is %v", bytes)
+	//log.Printf("output bytes is %v", bytes)
 
 	err := d.bus.WriteByteBlock(d.addr, bytes[0], bytes[1:])
 	if err != nil {
