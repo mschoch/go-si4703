@@ -57,13 +57,14 @@ func main() {
 				val, err := strconv.Atoi(command[1])
 				if err != nil || val < 0 || val > 15 {
 					fmt.Printf("Invalid volume level, must be (0-15)")
+					continue
 				}
 				d.SetVolume(uint16(val))
 			} else {
 				fmt.Printf("specify a volume level (0-15)\n")
 			}
 		default:
-			fmt.Printf("Unknown command: %s", command[0])
+			fmt.Printf("Unknown command: `%s`", command[0])
 		}
 
 	}
