@@ -449,13 +449,23 @@ func (d *Device) printSysConfig1(sysconf uint16) string {
 	rv = rv + fmt.Sprintf("RDS Interrupt: %s\n", d.printEnabled(byte(sysconf>>RDSR)))
 	rv = rv + fmt.Sprintf("Seek/Tune Complete Interrupt: %s\n", d.printEnabled(byte(sysconf>>STC&0x1)))
 	rv = rv + fmt.Sprintf("RDS: %s\n", d.printEnabled(byte(sysconf>>RDS&0x1)))
-	rv = rv + fmt.Sprintf("De-emphasis: %s", d.printDeemphasis(byte(sysconf>>DE&0x1)))
+	rv = rv + fmt.Sprintf("De-emphasis: %s\n", d.printDeemphasis(byte(sysconf>>DE&0x1)))
 	rv = rv + fmt.Sprintf("AGC: %s", d.printEnabled(byte(sysconf>>AGC&0x1)))
 	rv = rv + fmt.Sprintf("Stereo/Mono Blend Adjustment: %s\n", d.printSMBlend(byte(sysconf>>BLNDADJ&0x3)))
 	return rv
 }
 
+func (d *Device) printRDSReady(rdsr byte) string {
+	switch rdsr {
+	case 0x0:
+		return "No RDS group ready"
+	default:
+		return "New RDS group ready"
+	}
+}
+
 func (d *Device) printStatusRSSI(status uint16) string {
 	rv := ""
+	rv = rv + fmt.Sprintf("RDS Ready: %s\n", d.printRDSReady(byte(status>>RDSR)))
 	return rv
 }
