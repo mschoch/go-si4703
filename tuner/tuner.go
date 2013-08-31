@@ -25,4 +25,10 @@ func main() {
 	d.SetChannel(1011)
 	fmt.Printf("tuned\n")
 	fmt.Printf("%v\n", d)
+
+	fmt.Printf("disabling soft mute")
+	d.DisableSoftMute()
+
+	fmt.Printf("disabled mute")
+	d.DisableMute()
 }

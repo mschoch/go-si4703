@@ -135,6 +135,18 @@ func (d *Device) InitCustomAddr(addr, busNum byte) (err error) {
 	return
 }
 
+func (d *Device) DisableSoftMute() {
+	d.readRegisters()
+	d.registers[POWERCFG] = d.registers[POWERCFG] | (1 << SMUTE)
+	d.updateRegisters()
+}
+
+func (d *Device) DisableMute() {
+	d.readRegisters()
+	d.registers[POWERCFG] = d.registers[POWERCFG] | (1 << DMUTE)
+	d.updateRegisters()
+}
+
 func (d *Device) readRegisters() {
 	var data []byte
 	var err error
