@@ -147,6 +147,12 @@ func (d *Device) DisableMute() {
 	d.updateRegisters()
 }
 
+func (d *Device) EnableMute() {
+	d.readRegisters()
+	d.registers[POWERCFG] = d.registers[POWERCFG] & 0xBFFF
+	d.updateRegisters()
+}
+
 func (d *Device) readRegisters() {
 	var data []byte
 	var err error
