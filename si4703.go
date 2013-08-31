@@ -195,7 +195,7 @@ func (d *Device) SetVolume(volume uint16) {
 func (d *Device) SetChannel(channel uint16) {
 	newChannel := channel * 10
 	newChannel = newChannel - 8750
-	newChannel = newChannel / 10
+	newChannel = newChannel / 20
 
 	d.readRegisters()
 	d.registers[CHANNEL] = d.registers[CHANNEL] & 0xFE00
@@ -386,7 +386,7 @@ func (d *Device) printChannelNumber(channel uint16) string {
 	spacing := 200 // FIXME use actual spacing
 	switch band {
 	case 0:
-		freq := (float64(spacing) * float64(channel)) + 87.5
+		freq := ((channel * 20) + 8750) / 100
 		return fmt.Sprintf("%fMHz", freq)
 	case 1:
 		freq := (float64(spacing) * float64(channel)) + 76.0
