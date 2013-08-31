@@ -74,6 +74,18 @@ func main() {
 			} else {
 				fmt.Printf("specify setting (on/off)\n")
 			}
+		case "tune":
+			if len(command) > 1 {
+				val, err := strconv.ParseFloat(command[1], 32)
+				if err != nil {
+					freqint := uint16(val * 10)
+					d.SetChannel(freqint)
+				}
+			} else {
+				fmt.Printf("specify frequency in MHz")
+			}
+		case "help":
+			fmt.Printf("Valid commands are: quit, volume, mute")
 		default:
 			fmt.Printf("Unknown command: `%s`", command[0])
 		}

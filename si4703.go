@@ -207,6 +207,8 @@ func (d *Device) SetVolume(volume uint16) {
 	}
 	d.registers[SYSCONFIG2] = d.registers[SYSCONFIG2] & 0xFFF0
 	d.registers[SYSCONFIG2] = d.registers[SYSCONFIG2] | volume
+	// disable mute, it seems to not stick
+	d.registers[POWERCFG] = d.registers[POWERCFG] | (1 << DMUTE)
 	d.updateRegisters()
 }
 
