@@ -322,7 +322,7 @@ func (d *Device) printPowerCfg(powercfg uint16) string {
 	rv := ""
 	rv = rv + fmt.Sprintf("Soft Mute: %s\n", d.printMute(byte(powercfg>>15)))
 	rv = rv + fmt.Sprintf("Mute: %s\n", d.printMute(byte(powercfg&0x7fff)>>14))
-	rv = rv + fmt.Sprintf("Stereo/Mono: %s\n", d.printStereoMono(byte(powercfg&0x3fff)>>13))
+	rv = rv + fmt.Sprintf("Stereo/Mono: %s\n", d.printStereoMonoConfig(byte(powercfg&0x3fff)>>13))
 	rv = rv + fmt.Sprintf("RDS Mode: %s\n", d.printRDSMode(byte(powercfg&0xfff)>>11))
 	rv = rv + fmt.Sprintf("Seek Mode: %s\n", d.printSeekMode(byte(powercfg&0x7ff)>>10))
 	rv = rv + fmt.Sprintf("Seek Direction: %s\n", d.printSeekDirection(byte(powercfg&0x3ff)>>9))
@@ -341,12 +341,21 @@ func (d *Device) printMute(mute byte) string {
 	}
 }
 
-func (d *Device) printStereoMono(mono byte) string {
+func (d *Device) printStereoMonoConfig(mono byte) string {
 	switch mono {
 	case 0x0:
 		return "Stereo"
 	default:
 		return "Mono"
+	}
+}
+
+func (d *Device) printStereoMonoActual(mono byte) string {
+	switch mono {
+	case 0x0:
+		return "Mono"
+	default:
+		return "Stereo"
 	}
 }
 
@@ -450,7 +459,7 @@ func (d *Device) printSysConfig1(sysconf uint16) string {
 	rv = rv + fmt.Sprintf("Seek/Tune Complete Interrupt: %s\n", d.printEnabled(byte(sysconf>>STC&0x1)))
 	rv = rv + fmt.Sprintf("RDS: %s\n", d.printEnabled(byte(sysconf>>RDS&0x1)))
 	rv = rv + fmt.Sprintf("De-emphasis: %s\n", d.printDeemphasis(byte(sysconf>>DE&0x1)))
-	rv = rv + fmt.Sprintf("AGC: %s", d.printEnabled(byte(sysconf>>AGC&0x1)))
+	rv = rv + fmt.Sprintf("AGC: %s\n", d.printEnabled(byte(sysconf>>AGC&0x1)))
 	rv = rv + fmt.Sprintf("Stereo/Mono Blend Adjustment: %s\n", d.printSMBlend(byte(sysconf>>BLNDADJ&0x3)))
 	return rv
 }
@@ -464,8 +473,49 @@ func (d *Device) printRDSReady(rdsr byte) string {
 	}
 }
 
+func (d *Device) printComplete(com byte) string {
+	switch com {
+	case 0x0:
+		return "Not complete"
+	default:
+		return "Complete"
+	}
+}
+
+func (d *Device) printSeekFailBandLimit(sfbl byte) string {
+	switch sfbl {
+	case 0x0:
+		return "Seek successful"
+	default:
+		return "Seek failure/Band limit reached"
+	}
+}
+
+func (d *Device) printAFCRail(afcrl byte) string {
+	switch afcrl {
+	case 0x0:
+		return "AFC not railed"
+	default:
+		return "AFC railed"
+	}
+}
+
+func (d *Device) printSynchronized(rdss byte) string {
+	switch rdss {
+	case 0x0:
+		return "RDS decoder not synchronized"
+	default:
+		return "RDS decoder synchronized"
+	}
+}
+
 func (d *Device) printStatusRSSI(status uint16) string {
 	rv := ""
 	rv = rv + fmt.Sprintf("RDS Ready: %s\n", d.printRDSReady(byte(status>>RDSR)))
+	rv = rv + fmt.Sprintf("Seek/Tune Complete: %s\n", d.printComplete(byte(status>>STC&0x1)))
+	rv = rv + fmt.Sprintf("Seek Fail/Band Limit: %s\n", d.printSeekFailBandLimit(byte(status>>SFBL&0x1)))
+	rv = rv + fmt.Sprintf("AFC Rail: %s\n", d.printAFCRail(byte(status>>AFCRL&0x1)))
+	rv = rv + fmt.Sprintf("RDS Synchronized: %s\n", d.printSynchronized(byte(status>>RDSS&0x1)))
+	rv = rv + fmt.Sprintf("Stereo/Mono: %s\n", d.printStereoMonoActual(byte(status>>STEREO&0x1)))
 	return rv
 }
