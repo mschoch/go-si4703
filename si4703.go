@@ -233,7 +233,7 @@ func (d *Device) String() string {
 	rv = rv + d.printDeviceID(d.registers[DEVICEID])
 	rv = rv + d.printChipID(d.registers[CHIPID])
 	rv = rv + d.printPowerCfg(d.registers[POWERCFG])
-	rv = rv + d.printTune(d.registers[TUNE])
+	rv = rv + d.printChannel(d.registers[CHANNEL])
 	rv = rv + "--------------------------------------------------------------------------------\n\n"
 	return rv
 }
@@ -373,16 +373,15 @@ func (d *Device) printPower(power byte) string {
 	}
 }
 
-func (d *Device) printTune(tune uint16) string {
-	fmt.Printf("tune: %d %d", tune>>8, tune&0xff)
+func (d *Device) printChannel(tune uint16) string {
 	rv := ""
 	rv = rv + fmt.Sprintf("Tune: %s\n", d.printEnabled(byte(tune>>15)))
-	rv = rv + fmt.Sprintf("Channel: %s\n", d.printChannel(tune&0x1FF))
+	rv = rv + fmt.Sprintf("Channel: %s\n", d.printChannelNumber(tune&0x1FF))
 
 	return rv
 }
 
-func (d *Device) printChannel(channel uint16) string {
+func (d *Device) printChannelNumber(channel uint16) string {
 	band := 0      // FIXME use actual band
 	spacing := 200 // FIXME use actual spacing
 	switch band {
