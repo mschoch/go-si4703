@@ -87,12 +87,9 @@ func (d *Device) InitCustomAddr(addr, busNum byte) (err error) {
 		return err
 	}
 
-	pin2 := rpio.Pin(2)
-	pin2.Output()
 	pin23 := rpio.Pin(23)
 	pin23.Output()
 
-	pin2.Low()
 	pin23.Low()
 	time.Sleep(1 * time.Second)
 	pin23.High()
@@ -144,6 +141,8 @@ func (d *Device) readRegisters() {
 	if data, err = d.bus.ReadByteBlock(d.addr, 0, 32); err != nil {
 		return
 	}
+
+	log.Printf("read bytes %v", data)
 
 	counter := 0
 	for x := 0x0A; ; x++ {
