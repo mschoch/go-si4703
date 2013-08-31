@@ -374,6 +374,7 @@ func (d *Device) printPower(power byte) string {
 }
 
 func (d *Device) printTune(tune uint16) string {
+	fmt.Printf("tune: %d %d", tune>>8, tune&0xff)
 	rv := ""
 	rv = rv + fmt.Sprintf("Tune: %s\n", d.printEnabled(byte(tune>>15)))
 	rv = rv + fmt.Sprintf("Channel: %s\n", d.printChannel(tune&0x1FF))
