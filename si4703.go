@@ -55,6 +55,8 @@ const TUNE uint16 = 15
 // sysconfig1
 const RDS uint16 = 12
 const DE uint16 = 11
+const AGC uint16 = 10
+const BLNDADJ uint16 = 7
 
 // sysconfig2
 const SPACE1 uint16 = 5
@@ -253,6 +255,7 @@ func (d *Device) String() string {
 	rv = rv + d.printPowerCfg(d.registers[POWERCFG])
 	rv = rv + d.printChannel(d.registers[CHANNEL])
 	rv = rv + d.printSysConfig1(d.registers[SYSCONFIG1])
+	rv = rv + d.printStatusRSSI(d.registers[STATUSRSSI])
 	rv = rv + "--------------------------------------------------------------------------------\n\n"
 	return rv
 }
@@ -415,11 +418,44 @@ func (d *Device) printChannelNumber(channel uint16) string {
 	}
 }
 
+func (d *Device) printDeemphasis(de byte) string {
+	switch de {
+	case 0:
+		return fmt.Sprintf("75μs")
+	case 1:
+		return fmt.Sprintf("50μs")
+	default:
+		return "Unknown"
+	}
+}
+
+func (d *Device) printSMBlend(blndadj byte) string {
+	switch blndadj {
+	case 0:
+		return fmt.Sprintf("31–49 RSSI dBµV (default)")
+	case 1:
+		return fmt.Sprintf("37–55 RSSI dBµV (+6 dB)")
+	case 2:
+		return fmt.Sprintf("19–37 RSSI dBµV (–12 dB)")
+	case 3:
+		return fmt.Sprintf("25–43 RSSI dBµV (–6 dB)")
+	default:
+		return "Unknown"
+	}
+}
+
 func (d *Device) printSysConfig1(sysconf uint16) string {
 	rv := ""
 	rv = rv + fmt.Sprintf("RDS Interrupt: %s\n", d.printEnabled(byte(sysconf>>RDSR)))
 	rv = rv + fmt.Sprintf("Seek/Tune Complete Interrupt: %s\n", d.printEnabled(byte(sysconf>>STC&0x1)))
 	rv = rv + fmt.Sprintf("RDS: %s\n", d.printEnabled(byte(sysconf>>RDS&0x1)))
+	rv = rv + fmt.Sprintf("De-emphasis: %s", d.printDeemphasis(byte(sysconf>>DE&0x1)))
+	rv = rv + fmt.Sprintf("AGC: %s", d.printEnabled(byte(sysconf>>AGC&0x1)))
+	rv = rv + fmt.Sprintf("Stereo/Mono Blend Adjustment: %s\n", d.printSMBlend(byte(sysconf>>BLNDADJ&0x3)))
+	return rv
+}
 
+func (d *Device) printStatusRSSI(status uint16) string {
+	rv := ""
 	return rv
 }
