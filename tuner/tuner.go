@@ -44,6 +44,10 @@ func main() {
 			break
 		}
 
+		if line == "" {
+			continue
+		}
+
 		command := strings.SplitN(line, " ", 2)
 		switch command[0] {
 		case "quit":
@@ -58,7 +62,8 @@ func main() {
 			} else {
 				fmt.Printf("specify a volume level (0-15)\n")
 			}
-
+		default:
+			fmt.Printf("Unknown command: %s", command[0])
 		}
 
 	}
