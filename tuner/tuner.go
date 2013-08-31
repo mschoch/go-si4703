@@ -44,9 +44,7 @@ func main() {
 			break
 		}
 
-		if line == "" {
-			continue
-		}
+		line = strings.Replace(line, "\n", "", -1)
 
 		command := strings.SplitN(line, " ", 2)
 		switch command[0] {
