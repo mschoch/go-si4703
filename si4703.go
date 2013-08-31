@@ -252,6 +252,7 @@ func (d *Device) String() string {
 	rv = rv + d.printChipID(d.registers[CHIPID])
 	rv = rv + d.printPowerCfg(d.registers[POWERCFG])
 	rv = rv + d.printChannel(d.registers[CHANNEL])
+	rv = rv + d.printSysConfig1(d.registers[SYSCONFIG1])
 	rv = rv + "--------------------------------------------------------------------------------\n\n"
 	return rv
 }
@@ -412,4 +413,13 @@ func (d *Device) printChannelNumber(channel uint16) string {
 	default:
 		return "Unknown"
 	}
+}
+
+func (d *Device) printSysConfig1(sysconf uint16) string {
+	rv := ""
+	rv = rv + fmt.Sprintf("RDS Interrupt: %s\n", d.printEnabled(byte(sysconf>>RDSR)))
+	rv = rv + fmt.Sprintf("Seek/Tune Complete Interrupt: %s\n", d.printEnabled(byte(sysconf>>STC&0x1)))
+	rv = rv + fmt.Sprintf("RDS: %s\n", d.printEnabled(byte(sysconf>>RDS&0x1)))
+
+	return rv
 }
