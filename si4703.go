@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"bitbucket.org/gmcbay/i2c"
+	"github.com/stianeikeland/go-rpio"
 )
 
 const I2C_ADDR = 0x10
@@ -79,6 +80,27 @@ func (d *Device) Init(busNum byte) (err error) {
 }
 
 func (d *Device) InitCustomAddr(addr, busNum byte) (err error) {
+	// do some manual GPIO to initialize the device
+	log.Printf("starting manual gpio")
+	err = rpio.Open()
+	if err != nil {
+		return err
+	}
+
+	pin2 := rpio.Pin(2)
+	pin2.Output()
+	pin23 := rpio.Pin(23)
+	pin23.Output()
+
+	pin2.Low()
+	pin23.Low()
+	time.Sleep(1 * time.Second)
+	pin23.High()
+	time.Sleep(1 * time.Second)
+
+	rpio.Close()
+	log.Printf("done manual gpio")
+
 	if d.bus, err = i2c.Bus(busNum); err != nil {
 		return
 	}
