@@ -20,21 +20,6 @@ func main() {
 		fmt.Printf("error: %v\n", err)
 		return
 	}
-	fmt.Printf("init done\n")
-
-	fmt.Printf("setting volume\n")
-	d.SetVolume(5)
-
-	fmt.Printf("trying to tune 101.1\n")
-	d.SetChannel(1011)
-	fmt.Printf("tuned\n")
-	fmt.Printf("%v\n", d)
-
-	// fmt.Printf("disabling soft mute")
-	// d.DisableSoftMute()
-
-	fmt.Printf("disabled mute")
-	d.DisableMute()
 
 	reader := bufio.NewReader(os.Stdin)
 
@@ -87,8 +72,10 @@ func main() {
 			} else {
 				fmt.Printf("specify frequency in MHz\n")
 			}
+		case "status":
+			fmt.Printf("%v", d)
 		case "help":
-			fmt.Printf("Valid commands are: quit, volume, mute, tune\n")
+			fmt.Printf("Valid commands are: quit, volume, mute, tune, status\n")
 		default:
 			fmt.Printf("Unknown command: `%s`\n", command[0])
 		}

@@ -119,7 +119,7 @@ func (d *Device) InitCustomAddr(addr, busNum byte) (err error) {
 	// read
 	d.readRegisters()
 	// enable the IC
-	d.registers[POWERCFG] = 0x4001
+	d.registers[POWERCFG] = 0x0001
 	// disable mute
 	//d.registers[POWERCFG] = d.registers[POWERCFG] | (1 << SMUTE) | (1 << DMUTE)
 	// enable the RDS
