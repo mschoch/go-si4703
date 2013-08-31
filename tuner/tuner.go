@@ -76,11 +76,12 @@ func main() {
 			}
 		case "tune":
 			if len(command) > 1 {
-				val, err := strconv.ParseFloat(command[1], 32)
+				val, err := strconv.ParseFloat(command[1], 64)
 				if err != nil {
 					fmt.Printf("Invalid frequence\n")
 				} else {
-					freqint := uint16(val * 10)
+					val = val * 10
+					freqint := uint16(val)
 					d.SetChannel(freqint)
 				}
 			} else {
