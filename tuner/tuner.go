@@ -63,7 +63,7 @@ OUTTER:
 			}
 		case "seek":
 			if len(command) > 1 {
-				val := command[2]
+				val := command[1]
 				if val == "up" {
 					d.Seek(1)
 				} else if val == "down" {
