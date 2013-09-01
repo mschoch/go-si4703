@@ -175,9 +175,21 @@ func (d *Device) EnableMute() {
 }
 
 func (d *Device) readRegisters() {
+
+	// with i2c we first write an address we want to read
+	// however, this device interprets that address
+	// as the first byte of the register at 0x2
+	// so in order to use the ReadByteBlock method
+	// without destroying our data, we have to write the
+	// correct value back there
+
+	buf := new(bytes.Buffer)
+	binary.Write(buf, binary.BigEndian, d.registers[0x2])
+	bufbytes := buf.Bytes()
+
 	var data []byte
 	var err error
-	if data, err = d.bus.ReadByteBlock(d.addr, 0, 32); err != nil {
+	if data, err = d.bus.ReadByteBlock(d.addr, bufbytes[0], 32); err != nil {
 		return
 	}
 
@@ -216,6 +228,8 @@ func (d *Device) updateRegisters() {
 	if err != nil {
 		log.Printf("error writing: %v")
 	}
+
+	d.readRegisters()
 }
 
 func (d *Device) SetVolume(volume uint16) {
@@ -289,11 +303,11 @@ func (d *Device) Seek(dir byte) {
 		}
 		log.Printf("Trying %s", d.printReadChannel(d.registers[READCHAN]))
 		// reset the seek bits (they come back as zero whenever we read)
-		if dir == 1 {
-			d.registers[POWERCFG] = d.registers[POWERCFG] | (1 << SEEKUP)
-		}
-		d.registers[POWERCFG] = d.registers[POWERCFG] | (1 << SEEK)
-		d.updateRegisters()
+		// if dir == 1 {
+		// 	d.registers[POWERCFG] = d.registers[POWERCFG] | (1 << SEEKUP)
+		// }
+		// d.registers[POWERCFG] = d.registers[POWERCFG] | (1 << SEEK)
+		// d.updateRegisters()
 	}
 
 	// clear the seek bit
