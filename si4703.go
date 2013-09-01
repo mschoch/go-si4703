@@ -181,7 +181,7 @@ func (d *Device) readRegisters() {
 		return
 	}
 
-	log.Printf("read bytes %v", data)
+	//log.Printf("read bytes %v", data)
 
 	counter := 0
 	for x := 0x0A; ; x++ {
@@ -210,14 +210,14 @@ func (d *Device) updateRegisters() {
 	}
 
 	bytes := p.Bytes()
-	log.Printf("output bytes is %v", bytes)
+	//log.Printf("output bytes is %v", bytes)
 
 	err := d.bus.WriteByteBlock(d.addr, bytes[0], bytes[1:])
 	if err != nil {
 		log.Printf("error writing: %v")
 	}
 
-	d.readRegisters()
+	//d.readRegisters()
 }
 
 func (d *Device) SetVolume(volume uint16) {
@@ -273,6 +273,8 @@ func (d *Device) Seek(dir byte) {
 	d.readRegisters()
 	if dir == 1 {
 		d.registers[POWERCFG] = d.registers[POWERCFG] | (1 << SEEKUP)
+	} else {
+		d.registers[POWERCFG] = d.registers[POWERCFG] &^ (1 << SEEKUP)
 	}
 	d.registers[POWERCFG] = d.registers[POWERCFG] | (1 << SEEK)
 
