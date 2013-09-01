@@ -181,7 +181,7 @@ func (d *Device) readRegisters() {
 		return
 	}
 
-	//log.Printf("read bytes %v", data)
+	log.Printf("read bytes %v", data)
 
 	counter := 0
 	for x := 0x0A; ; x++ {
@@ -210,7 +210,7 @@ func (d *Device) updateRegisters() {
 	}
 
 	bytes := p.Bytes()
-	//log.Printf("output bytes is %v", bytes)
+	log.Printf("output bytes is %v", bytes)
 
 	err := d.bus.WriteByteBlock(d.addr, bytes[0], bytes[1:])
 	if err != nil {
