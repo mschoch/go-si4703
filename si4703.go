@@ -45,6 +45,8 @@ const (
 // powercfg
 const SMUTE uint16 = 15
 const DMUTE uint16 = 14
+const FORCEMONO uint16 = 13
+const RDSMODE uint16 = 11
 const SKMODE uint16 = 10
 const SEEKUP uint16 = 9
 const SEEK uint16 = 8
@@ -120,9 +122,6 @@ func (d *Device) InitCustomAddr(addr, busNum byte) (err error) {
 	d.readRegisters()
 	// enable the IC
 	d.registers[POWERCFG] = 0x0001
-	// disable mute
-	//d.registers[POWERCFG] = d.registers[POWERCFG] | (1 << SMUTE) | (1 << DMUTE)
-	// enable the RDS
 	d.registers[SYSCONFIG1] = d.registers[SYSCONFIG1] | (1 << RDS)
 	d.registers[SYSCONFIG2] = d.registers[SYSCONFIG2] & 0xFFF0 // clear volume
 	d.registers[SYSCONFIG2] = d.registers[SYSCONFIG2] | 0x0001 // set to lowest
@@ -139,20 +138,9 @@ func (d *Device) Close() error {
 	fmt.Printf("turning off chip")
 	// read
 	d.readRegisters()
-	// enable the IC
+	// disable the IC
 	d.registers[POWERCFG] = 0x0000
 	d.updateRegisters()
-
-	// do some manual GPIO to initialize the device
-	// err := rpio.Open()
-	// if err != nil {
-	// 	return err
-	// }
-
-	// pin23 := rpio.Pin(23)
-	// pin23.Output()
-	// pin23.Low()
-	// rpio.Close()
 	return nil
 }
 
@@ -242,8 +230,6 @@ func (d *Device) SetVolume(volume uint16) {
 	}
 	d.registers[SYSCONFIG2] = d.registers[SYSCONFIG2] & 0xFFF0
 	d.registers[SYSCONFIG2] = d.registers[SYSCONFIG2] | volume
-	// disable mute, it seems to not stick
-	d.registers[POWERCFG] = d.registers[POWERCFG] | (1 << DMUTE)
 	d.updateRegisters()
 }
 
@@ -302,12 +288,6 @@ func (d *Device) Seek(dir byte) {
 			break
 		}
 		log.Printf("Trying %s", d.printReadChannel(d.registers[READCHAN]))
-		// reset the seek bits (they come back as zero whenever we read)
-		// if dir == 1 {
-		// 	d.registers[POWERCFG] = d.registers[POWERCFG] | (1 << SEEKUP)
-		// }
-		// d.registers[POWERCFG] = d.registers[POWERCFG] | (1 << SEEK)
-		// d.updateRegisters()
 	}
 
 	// clear the seek bit
@@ -400,13 +380,13 @@ func (d *Device) printFirmwareVersion(rev byte) string {
 
 func (d *Device) printPowerCfg(powercfg uint16) string {
 	rv := ""
-	rv = rv + fmt.Sprintf("Soft Mute: %s\n", d.printMute(byte(powercfg>>15)))
-	rv = rv + fmt.Sprintf("Mute: %s\n", d.printMute(byte(powercfg&0x7fff)>>14))
-	rv = rv + fmt.Sprintf("Stereo/Mono: %s\n", d.printStereoMonoConfig(byte(powercfg&0x3fff)>>13))
-	rv = rv + fmt.Sprintf("RDS Mode: %s\n", d.printRDSMode(byte(powercfg&0xfff)>>11))
-	rv = rv + fmt.Sprintf("Seek Mode: %s\n", d.printSeekMode(byte(powercfg&0x7ff)>>10))
-	rv = rv + fmt.Sprintf("Seek Direction: %s\n", d.printSeekDirection(byte(powercfg&0x3ff)>>9))
-	rv = rv + fmt.Sprintf("Seek: %s\n", d.printEnabled(byte(powercfg&0x1ff)>>8))
+	rv = rv + fmt.Sprintf("Soft Mute: %s\n", d.printMute(byte(powercfg>>SMUTE)))
+	rv = rv + fmt.Sprintf("Mute: %s\n", d.printMute(byte(powercfg>>DMUTE&0x1)))
+	rv = rv + fmt.Sprintf("Force Mono: %s\n", d.printEnabled(byte(powercfg>>FORCEMONO&0x1)))
+	rv = rv + fmt.Sprintf("RDS Mode: %s\n", d.printRDSMode(byte(powercfg>>RDSMODE&0x1)))
+	rv = rv + fmt.Sprintf("Seek Mode: %s\n", d.printSeekMode(byte(powercfg>>SKMODE&0x1)))
+	rv = rv + fmt.Sprintf("Seek Direction: %s\n", d.printSeekDirection(byte(powercfg>>SEEKUP&0x1)))
+	rv = rv + fmt.Sprintf("Seek: %s\n", d.printEnabled(byte(powercfg>>SEEK&0x1)))
 	rv = rv + fmt.Sprintf("Power-Up Disable: %s\n", d.printPower(byte(powercfg&0x3f)>>6))
 	rv = rv + fmt.Sprintf("Power-Up Enable: %s\n", d.printPower(byte(powercfg&0x1)))
 	return rv
@@ -418,15 +398,6 @@ func (d *Device) printMute(mute byte) string {
 		return "Enabled"
 	default:
 		return "Disabled"
-	}
-}
-
-func (d *Device) printStereoMonoConfig(mono byte) string {
-	switch mono {
-	case 0x0:
-		return "Stereo"
-	default:
-		return "Mono"
 	}
 }
 
@@ -590,7 +561,6 @@ func (d *Device) printSynchronized(rdss byte) string {
 }
 
 func (d *Device) printStatusRSSI(status uint16) string {
-	fmt.Printf("raw status rssi: %d - %d\n", status>>8, status&0xFF)
 	rv := ""
 	rv = rv + fmt.Sprintf("RDS Ready: %s\n", d.printRDSReady(byte(status>>RDSR)))
 	rv = rv + fmt.Sprintf("Seek/Tune Complete: %s\n", d.printComplete(byte(status>>STC&0x1)))
