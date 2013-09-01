@@ -136,7 +136,7 @@ func (d *Device) InitCustomAddr(addr, busNum byte) (err error) {
 }
 
 func (d *Device) Close() error {
-
+	fmt.Printf("turning off chip")
 	// read
 	d.readRegisters()
 	// enable the IC
@@ -144,15 +144,15 @@ func (d *Device) Close() error {
 	d.updateRegisters()
 
 	// do some manual GPIO to initialize the device
-	err := rpio.Open()
-	if err != nil {
-		return err
-	}
+	// err := rpio.Open()
+	// if err != nil {
+	// 	return err
+	// }
 
-	pin23 := rpio.Pin(23)
-	pin23.Output()
-	pin23.Low()
-	rpio.Close()
+	// pin23 := rpio.Pin(23)
+	// pin23.Output()
+	// pin23.Low()
+	// rpio.Close()
 	return nil
 }
 
