@@ -258,6 +258,10 @@ func (d *Device) String() string {
 	rv = rv + d.printSysConfig1(d.registers[SYSCONFIG1])
 	rv = rv + d.printStatusRSSI(d.registers[STATUSRSSI])
 	rv = rv + d.printReadChannel(d.registers[READCHAN])
+	rv = rv + d.printRDS("A", d.registers[RDSA])
+	rv = rv + d.printRDS("B", d.registers[RDSB])
+	rv = rv + d.printRDS("C", d.registers[RDSC])
+	rv = rv + d.printRDS("D", d.registers[RDSD])
 	rv = rv + "--------------------------------------------------------------------------------\n\n"
 	return rv
 }
@@ -526,5 +530,11 @@ func (d *Device) printStatusRSSI(status uint16) string {
 func (d *Device) printReadChannel(readChannel uint16) string {
 	rv := ""
 	rv = rv + fmt.Sprintf("Read Channel: %s\n", d.printChannelNumber(readChannel&0x1FF))
+	return rv
+}
+
+func (d *Device) printRDS(prefix string, rds uint16) string {
+	rv := ""
+	rv = rv + fmt.Sprintf("%s: %s%s", prefix, string(rds>>8), string(rds&0xFF))
 	return rv
 }
