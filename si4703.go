@@ -516,6 +516,7 @@ func (d *Device) printSynchronized(rdss byte) string {
 }
 
 func (d *Device) printStatusRSSI(status uint16) string {
+	fmt.Printf("raw status rssi: %d - %d\n", status>>8, status&0xFF)
 	rv := ""
 	rv = rv + fmt.Sprintf("RDS Ready: %s\n", d.printRDSReady(byte(status>>RDSR)))
 	rv = rv + fmt.Sprintf("Seek/Tune Complete: %s\n", d.printComplete(byte(status>>STC&0x1)))
