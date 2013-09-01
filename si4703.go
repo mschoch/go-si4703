@@ -289,7 +289,6 @@ func (d *Device) Seek(dir byte) {
 			log.Printf("Seek Complete")
 			break
 		}
-		log.Printf("Trying %s", d.printReadChannel(d.registers[READCHAN]))
 	}
 
 	// clear the seek bit
@@ -303,6 +302,7 @@ func (d *Device) Seek(dir byte) {
 			break
 		}
 	}
+	log.Printf("Seeked to %s", d.printReadChannel(d.registers[READCHAN]))
 }
 
 func (d *Device) String() string {
