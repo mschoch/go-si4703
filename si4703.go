@@ -288,6 +288,12 @@ func (d *Device) Seek(dir byte) {
 			break
 		}
 		log.Printf("Trying %s", d.printReadChannel(d.registers[READCHAN]))
+		// reset the seek bits (they come back as zero whenever we read)
+		if dir == 1 {
+			d.registers[POWERCFG] = d.registers[POWERCFG] | (1 << SEEKUP)
+		}
+		d.registers[POWERCFG] = d.registers[POWERCFG] | (1 << SEEK)
+		d.updateRegisters()
 	}
 
 	// clear the seek bit
