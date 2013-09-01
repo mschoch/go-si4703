@@ -69,7 +69,6 @@ const SFBL uint16 = 13
 const AFCRL uint16 = 12
 const RDSS uint16 = 11
 const STEREO uint16 = 8
-const RSSI uint16 = 7
 
 type Device struct {
 	bus       *i2c.I2CBus
@@ -524,7 +523,7 @@ func (d *Device) printStatusRSSI(status uint16) string {
 	rv = rv + fmt.Sprintf("AFC Rail: %s\n", d.printAFCRail(byte(status>>AFCRL&0x1)))
 	rv = rv + fmt.Sprintf("RDS Synchronized: %s\n", d.printSynchronized(byte(status>>RDSS&0x1)))
 	rv = rv + fmt.Sprintf("Stereo/Mono: %s\n", d.printStereoMonoActual(byte(status>>STEREO&0x1)))
-	rv = rv + fmt.Sprintf("RSSI: %ddBµV\n", status>>RSSI&0x7F)
+	rv = rv + fmt.Sprintf("RSSI: %ddBµV\n", status&0x7F)
 	return rv
 }
 
