@@ -24,6 +24,7 @@ func main() {
 
 	reader := bufio.NewReader(os.Stdin)
 
+OUTTER:
 	for {
 		line, err := reader.ReadString('\n')
 		if err != nil {
@@ -35,7 +36,7 @@ func main() {
 		command := strings.SplitN(line, " ", 2)
 		switch command[0] {
 		case "quit":
-			os.Exit(0)
+			break OUTTER
 		case "volume":
 			if len(command) > 1 {
 				val, err := strconv.Atoi(command[1])
