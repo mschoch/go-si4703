@@ -595,6 +595,7 @@ func (d *Device) PollRDS() {
 				rv = rv + d.printRDS("B", d.registers[RDSB])
 				rv = rv + d.printRDS("C", d.registers[RDSC])
 				rv = rv + d.printRDS("D", d.registers[RDSD])
+				rv = rv + fmt.Sprintf("PI code: %d %d", d.registers[RDSA]>>8, d.registers[RDSA]&0xFF)
 				fmt.Printf("%s", rv)
 			}
 		}
