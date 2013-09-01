@@ -595,7 +595,11 @@ func (d *Device) PollRDS() {
 				rv = rv + d.printRDS("B", d.registers[RDSB])
 				rv = rv + d.printRDS("C", d.registers[RDSC])
 				rv = rv + d.printRDS("D", d.registers[RDSD])
-				rv = rv + fmt.Sprintf("PI code: %d %d", d.registers[RDSA]>>8, d.registers[RDSA]&0xFF)
+				rv = rv + fmt.Sprintf("PI code: %d %d\n", d.registers[RDSA]>>8, d.registers[RDSA]&0xFF)
+				rv = rv + fmt.Sprintf("Group type: %d\n", d.registers[RDSB]>>12)
+				rv = rv + fmt.Sprintf("Version: %d\n", d.registers[RDSB]>>11&0x1)
+				rv = rv + fmt.Sprintf("Traffic Program Code: %d\n", d.registers[RDSB]>>10&0x1)
+				rv = rv + fmt.Sprintf("Program Type: %d\n", d.registers[RDSB]>>5&0xF)
 				fmt.Printf("%s", rv)
 			}
 		}
