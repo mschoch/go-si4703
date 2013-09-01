@@ -1,4 +1,4 @@
-//  Copyright (c) 2013 Couchbase, Inc.
+//  Copyright (c) Marty Schoch
 //  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 //  except in compliance with the License. You may obtain a copy of the License at
 //    http://www.apache.org/licenses/LICENSE-2.0
@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"bitbucket.org/gmcbay/i2c"
+	"github.com/mschoch/go-rds"
 	"github.com/stianeikeland/go-rpio"
 )
 
@@ -72,11 +73,23 @@ const AFCRL uint16 = 12
 const RDSS uint16 = 11
 const STEREO uint16 = 8
 
+type RDSInfo struct {
+	PI          uint16
+	ProgramType uint16
+}
+
+func (rdsinfo *RDSInfo) String() string {
+	rv := ""
+	rv = rv + rds.ProgramTypeByCode(int(rdsinfo.ProgramType)).Type
+	return rv
+}
+
 type Device struct {
 	bus       *i2c.I2CBus
 	busNum    byte
 	addr      byte
 	registers []uint16
+	rdsinfo   *RDSInfo
 }
 
 func (d *Device) Init(busNum byte) (err error) {
@@ -255,6 +268,9 @@ func (d *Device) SetChannel(channel uint16) {
 		}
 	}
 
+	// clear out old RDS info
+	d.rdsinfo = nil
+
 	// clear the tune bit
 	d.registers[CHANNEL] = d.registers[CHANNEL] &^ (1 << TUNE)
 	d.updateRegisters()
@@ -294,6 +310,9 @@ func (d *Device) Seek(dir byte) {
 			break
 		}
 	}
+
+	// clear out old RDS info
+	d.rdsinfo = nil
 
 	// clear the seek bit
 	d.registers[POWERCFG] = d.registers[POWERCFG] &^ (1 << SEEK)
@@ -590,6 +609,8 @@ func (d *Device) PollRDS() {
 		case <-time.After(40 * time.Millisecond):
 			d.readRegisters()
 			if byte(d.registers[STATUSRSSI]>>RDSR) == 1 {
+				d.rdsinfo.PI = d.registers[RDSA]
+				d.rdsinfo.ProgramType = d.registers[RDSB] >> 5 & 0x1F
 				rv := "RDS Ready\n"
 				rv = rv + d.printRDS("A", d.registers[RDSA])
 				rv = rv + d.printRDS("B", d.registers[RDSB])
@@ -599,7 +620,7 @@ func (d *Device) PollRDS() {
 				rv = rv + fmt.Sprintf("Group type: %d\n", d.registers[RDSB]>>12)
 				rv = rv + fmt.Sprintf("Version: %d\n", d.registers[RDSB]>>11&0x1)
 				rv = rv + fmt.Sprintf("Traffic Program Code: %d\n", d.registers[RDSB]>>10&0x1)
-				rv = rv + fmt.Sprintf("Program Type: %d\n", d.registers[RDSB]>>5&0xF)
+				rv = rv + fmt.Sprintf("Program Type: %d\n", d.registers[RDSB]>>5&0x1F)
 				fmt.Printf("%s", rv)
 			}
 		}
