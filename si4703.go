@@ -535,6 +535,6 @@ func (d *Device) printReadChannel(readChannel uint16) string {
 
 func (d *Device) printRDS(prefix string, rds uint16) string {
 	rv := ""
-	rv = rv + fmt.Sprintf("%s: %s%s", prefix, string(rds>>8), string(rds&0xFF))
+	rv = rv + fmt.Sprintf("%s: %s%s\n", prefix, string(rds>>8), string(rds&0xFF))
 	return rv
 }
