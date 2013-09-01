@@ -46,7 +46,7 @@ OUTTER:
 				}
 				d.SetVolume(uint16(val))
 			} else {
-				fmt.Printf("specify a volume level (0-15)\n")
+				fmt.Printf("Specify a volume level (0-15)\n")
 			}
 		case "mute":
 			if len(command) > 1 {
@@ -59,7 +59,20 @@ OUTTER:
 					fmt.Printf("Invalid setting, must be (on/off)\n")
 				}
 			} else {
-				fmt.Printf("specify setting (on/off)\n")
+				fmt.Printf("Specify setting (on/off)\n")
+			}
+		case "seek":
+			if len(command) > 1 {
+				val := command[2]
+				if val == "up" {
+					d.Seek(1)
+				} else if val == "down" {
+					d.Seek(0)
+				} else {
+					fmt.Printf("Invalid direction, must be (up/down)\n")
+				}
+			} else {
+				fmt.Printf("Specify direction (up/down)\n")
 			}
 		case "tune":
 			if len(command) > 1 {
@@ -72,12 +85,12 @@ OUTTER:
 					d.SetChannel(freqint)
 				}
 			} else {
-				fmt.Printf("specify frequency in MHz\n")
+				fmt.Printf("Specify frequency in MHz\n")
 			}
 		case "status":
 			fmt.Printf("%v", d)
 		case "help":
-			fmt.Printf("Valid commands are: quit, volume, mute, tune, status\n")
+			fmt.Printf("Valid commands are: quit, volume, mute, seek, tune, status\n")
 		default:
 			fmt.Printf("Unknown command: `%s`\n", command[0])
 		}

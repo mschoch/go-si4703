@@ -269,6 +269,38 @@ func (d *Device) SetChannel(channel uint16) {
 	}
 }
 
+func (d *Device) Seek(dir byte) {
+	d.readRegisters()
+	if dir == 1 {
+		d.registers[POWERCFG] = d.registers[POWERCFG] | (1 << SEEKUP)
+	}
+	d.registers[POWERCFG] = d.registers[POWERCFG] | (1 << SEEK)
+
+	// start seek
+	d.updateRegisters()
+
+	// wait for seek to complete
+	for {
+		d.readRegisters()
+		if d.registers[STATUSRSSI]&(1<<STC) != 0 {
+			log.Printf("Seek Complete")
+			break
+		}
+	}
+
+	// clear the seek bit
+	d.registers[POWERCFG] = d.registers[POWERCFG] &^ (1 << SEEK)
+
+	// now wait for for STC to be cleared
+	for {
+		d.readRegisters()
+		if d.registers[STATUSRSSI]&(1<<STC) == 0 {
+			log.Printf("STC Cleared")
+			break
+		}
+	}
+}
+
 func (d *Device) String() string {
 	rv := "--------------------------------------------------------------------------------\n"
 	rv = rv + d.printDeviceID(d.registers[DEVICEID])
