@@ -250,7 +250,7 @@ func (d *Device) SetChannel(channel uint16) {
 	for {
 		d.readRegisters()
 		if d.registers[STATUSRSSI]&(1<<STC) != 0 {
-			log.Printf("Tuning Complete")
+			//log.Printf("Tuning Complete")
 			break
 		}
 	}
@@ -263,30 +263,34 @@ func (d *Device) SetChannel(channel uint16) {
 	for {
 		d.readRegisters()
 		if d.registers[STATUSRSSI]&(1<<STC) == 0 {
-			log.Printf("STC Cleared")
+			//log.Printf("STC Cleared")
 			break
 		}
 	}
+
+	log.Printf("Tuned to %s", d.printReadChannel(d.registers[READCHAN]))
 }
 
 func (d *Device) Seek(dir byte) {
 	d.readRegisters()
 	if dir == 1 {
+		log.Printf("Seeking UP")
 		d.registers[POWERCFG] = d.registers[POWERCFG] | (1 << SEEKUP)
 	} else {
+		log.Printf("Seeking DOWN")
 		d.registers[POWERCFG] = d.registers[POWERCFG] &^ (1 << SEEKUP)
 	}
 	d.registers[POWERCFG] = d.registers[POWERCFG] | (1 << SEEK)
 
 	// start seek
-	log.Printf("Attempting to seek")
+
 	d.updateRegisters()
 
 	// wait for seek to complete
 	for {
 		d.readRegisters()
 		if d.registers[STATUSRSSI]&(1<<STC) != 0 {
-			log.Printf("Seek Complete")
+			//log.Printf("Seek Complete")
 			break
 		}
 	}
@@ -298,7 +302,7 @@ func (d *Device) Seek(dir byte) {
 	for {
 		d.readRegisters()
 		if d.registers[STATUSRSSI]&(1<<STC) == 0 {
-			log.Printf("STC Cleared")
+			//log.Printf("STC Cleared")
 			break
 		}
 	}
@@ -460,7 +464,7 @@ func (d *Device) printPower(power byte) string {
 func (d *Device) printChannel(tune uint16) string {
 	rv := ""
 	rv = rv + fmt.Sprintf("Tune: %s\n", d.printEnabled(byte(tune>>15)))
-	rv = rv + fmt.Sprintf("Channel: %s\n", d.printChannelNumber(tune&0x1FF))
+	rv = rv + fmt.Sprintf("Tune Channel: %s\n", d.printChannelNumber(tune&0x1FF))
 
 	return rv
 }
@@ -576,7 +580,7 @@ func (d *Device) printStatusRSSI(status uint16) string {
 
 func (d *Device) printReadChannel(readChannel uint16) string {
 	rv := ""
-	rv = rv + fmt.Sprintf("Read Channel: %s\n", d.printChannelNumber(readChannel&0x1FF))
+	rv = rv + fmt.Sprintf("Channel: %s\n", d.printChannelNumber(readChannel&0x1FF))
 	return rv
 }
 
