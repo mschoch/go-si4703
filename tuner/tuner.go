@@ -20,6 +20,7 @@ func main() {
 		fmt.Printf("error: %v\n", err)
 		return
 	}
+	defer d.Close()
 
 	reader := bufio.NewReader(os.Stdin)
 

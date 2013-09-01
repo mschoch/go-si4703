@@ -135,6 +135,27 @@ func (d *Device) InitCustomAddr(addr, busNum byte) (err error) {
 	return
 }
 
+func (d *Device) Close() error {
+
+	// read
+	d.readRegisters()
+	// enable the IC
+	d.registers[POWERCFG] = 0x0000
+	d.updateRegisters()
+
+	// do some manual GPIO to initialize the device
+	err := rpio.Open()
+	if err != nil {
+		return err
+	}
+
+	pin23 := rpio.Pin(23)
+	pin23.Output()
+	pin23.Low()
+	rpio.Close()
+	return nil
+}
+
 func (d *Device) DisableSoftMute() {
 	d.readRegisters()
 	d.registers[POWERCFG] = d.registers[POWERCFG] | (1 << SMUTE)
