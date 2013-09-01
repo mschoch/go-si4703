@@ -584,6 +584,23 @@ func (d *Device) printReadChannel(readChannel uint16) string {
 	return rv
 }
 
+func (d *Device) PollRDS() {
+	for {
+		select {
+		case <-time.After(40 * time.Millisecond):
+			d.readRegisters()
+			if byte(d.registers[STATUSRSSI]>>RDSR) == 1 {
+				rv := "RDS Ready\n"
+				rv = rv + d.printRDS("A", d.registers[RDSA])
+				rv = rv + d.printRDS("B", d.registers[RDSB])
+				rv = rv + d.printRDS("C", d.registers[RDSC])
+				rv = rv + d.printRDS("D", d.registers[RDSD])
+				fmt.Printf("%s", rv)
+			}
+		}
+	}
+}
+
 func (d *Device) printRDS(prefix string, rds uint16) string {
 	rv := ""
 	rv = rv + fmt.Sprintf("%s: %s%s\n", prefix, string(rds>>8), string(rds&0xFF))
