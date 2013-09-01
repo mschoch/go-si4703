@@ -277,6 +277,7 @@ func (d *Device) Seek(dir byte) {
 	d.registers[POWERCFG] = d.registers[POWERCFG] | (1 << SEEK)
 
 	// start seek
+	log.Printf("Attempting to seek")
 	d.updateRegisters()
 
 	// wait for seek to complete
@@ -286,6 +287,7 @@ func (d *Device) Seek(dir byte) {
 			log.Printf("Seek Complete")
 			break
 		}
+		log.Printf("Trying %s", d.printReadChannel(d.registers[READCHAN]))
 	}
 
 	// clear the seek bit
