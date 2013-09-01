@@ -91,6 +91,8 @@ OUTTER:
 			fmt.Printf("%v", d)
 		case "help":
 			fmt.Printf("Valid commands are: quit, volume, mute, seek, tune, status\n")
+		case "pollrds":
+			d.PollRDS()
 		default:
 			fmt.Printf("Unknown command: `%s`\n", command[0])
 		}
