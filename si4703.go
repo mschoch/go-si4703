@@ -614,6 +614,7 @@ func (d *Device) PollRDS() {
 				// rv = rv + fmt.Sprintf("Program Type: %d\n", d.registers[RDSB]>>5&0x1F)
 				//fmt.Printf("%s", rv)
 				d.rdsinfo.Update(d.registers[RDSA], d.registers[RDSB], d.registers[RDSC], d.registers[RDSD])
+				log.Printf("%v\n", d.rdsinfo)
 			}
 		}
 	}
