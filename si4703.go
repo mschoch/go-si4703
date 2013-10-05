@@ -86,7 +86,7 @@ func (d *Device) Init(busNum byte) (err error) {
 }
 
 func (d *Device) InitCustomAddr(addr, busNum byte) (err error) {
-	d.rdsinfo = new(rds.RDSInfo)
+	d.rdsinfo = rds.NewRDSInfo()
 
 	// do some manual GPIO to initialize the device
 	err = rpio.Open()
@@ -260,7 +260,7 @@ func (d *Device) SetChannel(channel uint16) {
 	}
 
 	// clear out old RDS info
-	d.rdsinfo = new(rds.RDSInfo)
+	d.rdsinfo = rds.NewRDSInfo()
 
 	// clear the tune bit
 	d.registers[CHANNEL] = d.registers[CHANNEL] &^ (1 << TUNE)
@@ -303,7 +303,7 @@ func (d *Device) Seek(dir byte) {
 	}
 
 	// clear out old RDS info
-	d.rdsinfo = new(rds.RDSInfo)
+	d.rdsinfo = rds.NewRDSInfo()
 
 	// clear the seek bit
 	d.registers[POWERCFG] = d.registers[POWERCFG] &^ (1 << SEEK)
